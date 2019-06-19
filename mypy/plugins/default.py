@@ -19,6 +19,7 @@ class DefaultPlugin(Plugin):
     def get_function_hook(self, fullname: str
                           ) -> Optional[Callable[[FunctionContext], Type]]:
         from mypy.plugins import ctypes
+        from mypy.plugins import struct
 
         if fullname == 'contextlib.contextmanager':
             return contextmanager_callback
@@ -26,11 +27,14 @@ class DefaultPlugin(Plugin):
             return open_callback
         elif fullname == 'ctypes.Array':
             return ctypes.array_constructor_callback
+        elif fullname in struct.FUNC_CALLBACKS:
+            return struct.FUNC_CALLBACKS[fullname]
         return None
 
     def get_method_signature_hook(self, fullname: str
                                   ) -> Optional[Callable[[MethodSigContext], CallableType]]:
         from mypy.plugins import ctypes
+        from mypy.plugins import struct
 
         if fullname == 'typing.Mapping.get':
             return typed_dict_get_signature_callback
@@ -44,6 +48,8 @@ class DefaultPlugin(Plugin):
             return typed_dict_delitem_signature_callback
         elif fullname == 'ctypes.Array.__setitem__':
             return ctypes.array_setitem_callback
+        elif fullname in struct.METH_CALLBACKS:
+            return struct.METH_CALLBACKS[fullname]
         return None
 
     def get_method_hook(self, fullname: str

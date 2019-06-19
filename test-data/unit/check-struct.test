@@ -1,0 +1,103 @@
+[case testStructUnpackFunction]
+from typing import Tuple, Union
+from typing_extensions import Literal
+import struct
+
+dynamic_fmt: str
+
+
+size_1: int = struct.calcsize(dynamic_fmt)
+size_2: int = struct.calcsize('bbi')
+
+data: Union[bytes, bytearray]
+
+fmt_1: Tuple[int, bool, float, bytes]
+
+lit_fmt: Literal[b'b?fs']
+
+fmt_1 = struct.unpack('b?fs', data)
+fmt_1 = struct.unpack('<b?fs', data)
+fmt_1 = struct.unpack(b'>b?fs', data)
+fmt_1 = struct.unpack(lit_fmt, data)
+
+fmt_2: Tuple[bytes, int, int, bool, int, int, int, int, int, int, int, int]
+fmt_2 = struct.unpack('xcbB?hHiIlLqQ', data)
+
+fmt_2 = struct.unpack('b?fs', data)  # E: Incompatible types in assignment (expression has type "Tuple[int, bool, float, bytes]", variable has type "Tuple[bytes, int, int, bool, int, int, int, int, int, int, int, int]")
+
+fmt_3: Tuple[int, int, float, float, float, bytes, bytes, int]
+fmt_3 = struct.unpack('nNefdspP', data)
+
+fmt_multi: Tuple[int, int, int, int, bytes, float, float, float, bytes, bytes, bytes]
+fmt_multi = struct.unpack('4H10s3d3c', data)
+
+[builtins fixtures/tuple.pyi]
+[builtins fixtures/primitives.pyi]
+
+[case testStructUnpackFromFunction]
+from typing import Tuple, Union
+from typing_extensions import Literal
+import struct
+
+dynamic_fmt: str
+
+data: Union[bytes, bytearray]
+
+fmt_1: Tuple[int, bool, float, bytes]
+
+lit_fmt: Literal[b'b?fs']
+
+fmt_1 = struct.unpack_from('b?fs', data)
+fmt_1 = struct.unpack_from('<b?fs', data)
+fmt_1 = struct.unpack_from(b'>b?fs', data)
+fmt_1 = struct.unpack_from(lit_fmt, data)
+
+fmt_2: Tuple[bytes, int, int, bool, int, int, int, int, int, int, int, int]
+fmt_2 = struct.unpack_from('xcbB?hHiIlLqQ', data)
+
+fmt_2 = struct.unpack_from('b?fs', data)  # E: Incompatible types in assignment (expression has type "Tuple[int, bool, float, bytes]", variable has type "Tuple[bytes, int, int, bool, int, int, int, int, int, int, int, int]")
+
+fmt_3: Tuple[int, int, float, float, float, bytes, bytes, int]
+fmt_3 = struct.unpack_from('nNefdspP', data)
+
+fmt_multi: Tuple[int, int, int, int, bytes, float, float, float, bytes, bytes, bytes]
+fmt_multi = struct.unpack_from('4H10s3d3c', data)
+
+[builtins fixtures/tuple.pyi]
+[builtins fixtures/primitives.pyi]
+
+
+[case testStructPackFunction]
+from typing import Tuple, Union
+import struct
+
+data: Union[bytes, bytearray]
+
+struct.Struct('b?fs').pack(data, 1, False, 1.0, b'')
+struct.Struct('<b?fs').pack(data, 1, False, 1.0, b'')
+struct.Struct(b'>b?fs').pack(data, 1, False, 1.0, b'')
+struct.Struct(b'b?fs').pack(data, 1, False, 1.0, b'')
+
+struct.Struct('xcbB?hHiIlLqQ').pack(data, b'', 1, 1, True, 1, 1, 1, 1, 1, 1, 1, 1)
+struct.Struct('xcbB?hHiIlLqQ').pack(data)  # E:
+
+struct.Struct('nNefdspP').pack(data, 1, 2, 1.0, 2.0, 3.0, b'value', b'value', 4)
+struct.Struct('nNefdspP').pack(data, 1, 2)  # E:
+
+struct.Struct('4H10s3d3c').pack(data, 1, 2, 3, 4, b'test', 1.0, 2.0, 3.0, b'a', b'b', b'c')
+struct.Struct('4H10s3d3c').pack(data, 45) # E:
+
+[builtins fixtures/tuple.pyi]
+[builtins fixtures/primitives.pyi]
+
+[case testStructBadFormat]
+import struct
+struct.pack('45') # E: Invalid struct format '45'
+struct.pack_into('[', bytearray(), 0) # E: Invalid struct format '['
+struct.unpack('>>', b'data') # E: Invalid struct format '>>'
+struct.unpack_from('z', b'data', offset=2) # E: Invalid struct format 'z'
+struct.iter_unpack('0i', b'data') # E: Invalid struct format '0i'
+
+struct.Struct('@@') # E: Invalid struct format '@@'
+
+[builtins fixtures/primitives.pyi]

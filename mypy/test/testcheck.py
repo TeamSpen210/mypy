@@ -84,6 +84,7 @@ typecheck_files = [
     'check-literal.test',
     'check-newsemanal.test',
     'check-inline-config.test',
+    'check-struct.test',
 ]
 
 # Tests that use Python 3.8-only AST features (like expression-scoped ignores):

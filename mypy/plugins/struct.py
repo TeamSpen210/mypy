@@ -70,7 +70,20 @@ def _parse_format(
 
         output.extend([rep_type] * repeats)
     return output
+
+
+def func_unpack_callback(ctx: FunctionContext) -> Type:
+    if ctx.args and len(ctx.args[0]) == 1:
+        fmt = _parse_format(ctx, ctx.arg_types[0][0], ctx.args[0][0])
+        if fmt is not None:
+            return TupleType(fmt, ctx.api.named_type('builtins.tuple'))
+
+    return ctx.default_return_type
+
+
 FUNC_CALLBACKS = {
+    'struct.unpack': func_unpack_callback,
+    'struct.unpack_from': func_unpack_callback,
 }
 
 METH_CALLBACKS = {
